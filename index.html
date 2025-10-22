@@ -901,46 +901,54 @@ async function fetchAmazonData(asin) {
     return null;
   }
 }
+<!-- ========================== -->
+<!-- 🛒 Test récupération Amazon (PA-API) -->
+<!-- ========================== -->
+<script defer>
+document.addEventListener("DOMContentLoaded", () => {
 
-<script>
-// ==========================
-// 🛒 Test récupération Amazon (PA-API)
-// ==========================
+  async function testAmazon() {
+    const asin = prompt("Entre un ASIN Amazon.fr (ex: B0D6V8W9M5) :");
+    if (!asin) return;
 
-async function testAmazon() {
-  const asin = prompt("Entre un ASIN Amazon.fr (ex: B0D6V8W9M5) :");
-  if (!asin) return;
+    try {
+      const res = await fetch("/.netlify/functions/paapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ asin })
+      });
 
-  try {
-    const res = await fetch("/.netlify/functions/paapi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ asin })
-    });
+      const data = await res.json();
 
-    const data = await res.json();
-
-    if (data.ok) {
-      alert("✅ Données reçues !");
-      document.getElementById("amazonResult").innerHTML = `
-        <div style="margin-top:15px;text-align:center;">
-          <img src="${data.image}" width="200" style="border-radius:10px"><br><br>
-          <strong style="font-size:1.1em;">${data.title}</strong><br>
-          <span style="color:#7CFC00;font-weight:bold;">${data.price}</span>
-        </div>
-      `;
-    } else {
-      alert("❌ Erreur : " + (data.error || "Impossible d’obtenir les données."));
+      if (data.ok) {
+        alert("✅ Données reçues !");
+        const box = document.getElementById("amazonResult");
+        if (box) {
+          box.innerHTML = `
+            <div style='margin-top:15px;text-align:center;'>
+              <img src='${data.image || ""}' width='200' style='border-radius:10px;max-width:90%;height:auto'><br><br>
+              <strong style='font-size:1.05em;'>${data.title || "(Titre indisponible)"}</strong><br>
+              <span style='color:#7CFC00;font-weight:bold;'>${data.price || "(Prix indisponible)"}</span>
+            </div>
+          `;
+        }
+      } else {
+        alert("❌ Erreur : " + (data.error || "Impossible d’obtenir les données."));
+      }
+    } catch (e) {
+      alert("⚠️ Erreur de connexion : " + e.message);
     }
-  } catch (e) {
-    alert("⚠️ Erreur de connexion : " + e.message);
   }
-}
+
+  // Attache l’événement sur le bouton
+  const btn = document.getElementById("testAmazonBtn");
+  if (btn) btn.addEventListener("click", testAmazon);
+});
 </script>
 
 <!-- Bouton de test et zone d’affichage -->
 <div style="text-align:center;margin-top:25px;">
-  <button onclick="testAmazon()" style="background:#222;border:1px solid #7CFC00;color:#7CFC00;padding:10px 20px;border-radius:8px;cursor:pointer;">
+  <button id="testAmazonBtn" style="background:#222;border:1px solid #7CFC00;color:#7CFC00;padding:10px 20px;border-radius:8px;cursor:pointer;">
     🛒 Tester récupération Amazon
   </button>
   <div id="amazonResult"></div>
