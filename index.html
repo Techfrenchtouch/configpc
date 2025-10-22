@@ -911,25 +911,29 @@ async function testAmazon() {
   const asin = prompt("Entre un ASIN Amazon.fr (ex: B0D6V8W9M5) :");
   if (!asin) return;
 
-  const res = await fetch("/.netlify/functions/paapi", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ asin })
-  });
+  try {
+    const res = await fetch("/.netlify/functions/paapi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ asin })
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (data.ok) {
-    alert("✅ Données reçues !");
-    document.getElementById("amazonResult").innerHTML = `
-      <div style="margin-top:15px;text-align:center;">
-        <img src="${data.image}" width="200" style="border-radius:10px"><br><br>
-        <strong style="font-size:1.1em;">${data.title}</strong><br>
-        <span style="color:#7CFC00;font-weight:bold;">${data.price}</span>
-      </div>
-    `;
-  } else {
-    alert("❌ Erreur : " + (data.error || "Impossible d’obtenir les données."));
+    if (data.ok) {
+      alert("✅ Données reçues !");
+      document.getElementById("amazonResult").innerHTML = `
+        <div style="margin-top:15px;text-align:center;">
+          <img src="${data.image}" width="200" style="border-radius:10px"><br><br>
+          <strong style="font-size:1.1em;">${data.title}</strong><br>
+          <span style="color:#7CFC00;font-weight:bold;">${data.price}</span>
+        </div>
+      `;
+    } else {
+      alert("❌ Erreur : " + (data.error || "Impossible d’obtenir les données."));
+    }
+  } catch (e) {
+    alert("⚠️ Erreur de connexion : " + e.message);
   }
 }
 </script>
