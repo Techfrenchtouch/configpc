@@ -902,24 +902,45 @@ async function fetchAmazonData(asin) {
   }
 }
 
-// ========================
-// 🧪 Test visuel de connexion
-// ========================
+<script>
+// ==========================
+// 🛒 Test récupération Amazon (PA-API)
+// ==========================
 
 async function testAmazon() {
-  // Remplace l’ASIN ci-dessous par un vrai produit Amazon.fr pour tester
-  const result = await fetchAmazonData("B0CNGD9Y3L"); // Exemple : RTX 4070
-  if (result) {
-    alert("✅ Connexion au proxy réussie !");
+  const asin = prompt("Entre un ASIN Amazon.fr (ex: B0D6V8W9M5) :");
+  if (!asin) return;
+
+  const res = await fetch("/.netlify/functions/paapi", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ asin })
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    alert("✅ Données reçues !");
+    document.getElementById("amazonResult").innerHTML = `
+      <div style="margin-top:15px;text-align:center;">
+        <img src="${data.image}" width="200" style="border-radius:10px"><br><br>
+        <strong style="font-size:1.1em;">${data.title}</strong><br>
+        <span style="color:#7CFC00;font-weight:bold;">${data.price}</span>
+      </div>
+    `;
   } else {
-    alert("❌ Échec de la connexion.");
+    alert("❌ Erreur : " + (data.error || "Impossible d’obtenir les données."));
   }
 }
 </script>
 
-<!-- Bouton de test -->
-<button onclick="testAmazon()" style="margin:20px;padding:10px;font-size:16px;">
-  🔍 Tester la connexion Amazon
-</button>
+<!-- Bouton de test et zone d’affichage -->
+<div style="text-align:center;margin-top:25px;">
+  <button onclick="testAmazon()" style="background:#222;border:1px solid #7CFC00;color:#7CFC00;padding:10px 20px;border-radius:8px;cursor:pointer;">
+    🛒 Tester récupération Amazon
+  </button>
+  <div id="amazonResult"></div>
+</div>
+
 </body>
 </html>
