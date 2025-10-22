@@ -877,5 +877,49 @@ document.addEventListener('change', (e)=>{
 })();
 
 })();</script>
+  <script>
+// ========================
+// 📦 amazon.js : proxy Netlify
+// ========================
+
+async function fetchAmazonData(asin) {
+  const endpoint = '/.netlify/functions/paapi'; // Appel du proxy Netlify
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ asin })
+    });
+
+    if (!response.ok) throw new Error(`Erreur ${response.status}`);
+    const data = await response.json();
+    console.log('✅ Réponse proxy/PAAPI :', data);
+    return data;
+  } catch (err) {
+    console.error('❌ Erreur proxy/PAAPI :', err);
+    return null;
+  }
+}
+
+// ========================
+// 🧪 Test visuel de connexion
+// ========================
+
+async function testAmazon() {
+  // Remplace l’ASIN ci-dessous par un vrai produit Amazon.fr pour tester
+  const result = await fetchAmazonData("B0CNGD9Y3L"); // Exemple : RTX 4070
+  if (result) {
+    alert("✅ Connexion au proxy réussie !");
+  } else {
+    alert("❌ Échec de la connexion.");
+  }
+}
+</script>
+
+<!-- Bouton de test -->
+<button onclick="testAmazon()" style="margin:20px;padding:10px;font-size:16px;">
+  🔍 Tester la connexion Amazon
+</button>
 </body>
 </html>
