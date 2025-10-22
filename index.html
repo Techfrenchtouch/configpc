@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0"/>
+<title>Configurateur PC par Budget</title>
+<style>
+  :root{
+    --bg:#0b1020;--card:#111a2c;--ink:#e7edff;--muted:#9fb0cf;--line:#203055;--accent:#3b82f6;
+    --h:44px; --minw:220px; --chk:16px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:var(--ink)}
+  header{padding:18px 20px;background:#0c1325;border-bottom:1px solid #1f2a46;display:flex;justify-content:center;align-items:center}
+  header h1{margin:0;font-size:1.25rem;letter-spacing:.2px}
+  .wrap{max-width:1200px;margin:auto;padding:20px;display:grid;gap:20px}
+  .card{background:var(--card);border-radius:16px;padding:20px;border:1px solid var(--line);position:relative}
+  h2{margin:0 0 12px 0}
+  .row{display:flex;flex-wrap:wrap;gap:12px}
+  .row.compact .field{flex:0 1 240px}
+  .field{display:flex;flex-direction:column;min-width:var(--minw);flex:1}
+  .field label{font-size:.9rem;margin:0 0 6px 2px;color:#cbd5e1}
+  input,select,button{font:inherit;height:var(--h)}
+  input,select{padding:10px;border-radius:10px;border:1px solid var(--line);background:#0f182b;color:var(--ink);width:100%}
+  button{padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:#0f182b;color:var(--ink);cursor:pointer}
+  .btn{min-width:160px}
+  button:hover{border-color:var(--accent)}
+  .sub-head{display:flex;align-items:center;gap:8px;padding:6px 0}
+  .cat-btn{border:1px solid var(--line);border-radius:8px;background:#0f182b;cursor:pointer;height:28px;display:inline-flex;align-items:center;justify-content:center;width:28px;margin-right:6px}
+  .sub-controls{padding:10px 0 4px 0;border-top:1px dashed #223250}
+  .checks{display:flex;align-items:center;gap:10px}
+  .checks label{display:flex;align-items:center;gap:6px}
+  .checks input[type=checkbox]{width:var(--chk);height:var(--chk)}
+  .muted{color:var(--muted);font-size:.92rem}
+  .hidden{display:none}
+  .pill{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:999px;font-size:.75rem;background:#0f182b}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px;border-bottom:1px solid #223250;text-align:left;vertical-align:middle}
+  .name-link{cursor:pointer;text-decoration:underline}
+  .warn{color:#ff6262}
+  .apply-wrap{margin-left:auto;display:flex;align-items:flex-end}
+  .grandTotal{position:absolute; right:20px; top:18px; font-size:1.6rem; font-weight:600}
+  footer{color:#88a; font-size:.8rem; text-align:center; padding:8px 0 0 0}
+  @media (max-width:768px){
+    .wrap{padding:12px}
+    .row{flex-direction:column}
+    .row.compact{flex-direction:row}
+    input,select,button{width:100%;font-size:16px}
+    table{display:block;overflow-x:auto}
+    th,td{white-space:nowrap}
+    .grandTotal{position:static; float:right; margin-top:8px}
+    .apply-wrap{width:100%}
+  }
+</style>
+</head>
+<body>
+<header><h1>Configurateur PC par Budget</h1></header>
+
+<main class="wrap" id="app">
+  <!-- PARTIE 1 -->
+  <section class="card" id="sec1">
+    <h2>1) Configurateur</h2>
+    <div class="row">
+      <div class="field">
+        <label for="budget">Budget (€)</label>
+        <input id="budget" type="number" min="800" max="8000" step="50" value="1500" placeholder="Entre 800€ et 8000€">
+      </div>
+      <div class="field" style="max-width:280px">
+        <label>&nbsp;</label>
+        <div class="checks">
+          <label><input class="chk" type="checkbox" id="olderGen"> <span style="font-size:.9rem">Utiliser les générations précédentes</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="background:transparent;border:none;padding:0">
+      <div class="sub-head">
+        <strong>⚙️ Options avancées</strong>
+        <button class="cat-btn" data-action="toggle-sub" data-target="adv" title="déplier">▼</button>
+      </div>
+      <div class="sub-controls hidden" data-sub="adv">
+
+        <!-- Usage -->
+        <div class="sub-head">
+          <strong>Usage</strong>
+          <button class="cat-btn" data-action="toggle-sub" data-target="usage" title="déplier">▼</button>
+        </div>
+        <div class="sub-controls row compact hidden" data-sub="usage">
+          <div class="field">
+            <label for="usePref">Usage</label>
+            <select id="usePref">
+              <option value="any" selected>Indifférent</option>
+              <option>Mixed</option><option>Gaming</option><option>Bureautique</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- CPU -->
+        <div class="sub-head">
+          <strong>Processeur</strong>
+          <button class="cat-btn" data-action="toggle-sub" data-target="cpu" title="déplier">▼</button>
+        </div>
+        <div class="sub-controls row compact hidden" data-sub="cpu">
+          <div class="field">
+            <label for="cpuPref">Marque</label>
+            <select id="cpuPref">
+              <option value="any" selected>Indifférent</option>
+              <option value="intel">Intel (14e gen)</option>
+              <option value="intel-ultra">Intel Ultra</option>
+              <option value="amd">AMD (Ryzen 9000)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="cpuModel">Modèle</label>
+            <select id="cpuModel"><option value="any" selected>Indifférent</option></select>
+          </div>
+        </div>
+
+        <!-- GPU -->
+        <div class="sub-head">
+          <strong>Carte Graphique (GPU)</strong>
+          <button class="cat-btn" data-action="toggle-sub" data-target="gpu" title="déplier">▼</button>
+        </div>
+        <div class="sub-controls row compact hidden" data-sub="gpu">
+          <div class="field">
+            <label for="gpuBrand">Marque</label>
+            <select id="gpuBrand">
+              <option value="any" selected>Indifférent</option>
+              <option>ASUS</option><option>MSI</option><option>ZOTAC</option><option>GIGABYTE</option><option>INNO3D</option><option>PALIT</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="gpuSeries">Série</label>
+            <select id="gpuSeries">
+              <option>RTX 5070</option><option selected>RTX 5080</option><option>RTX 5090</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="gpuColor">Couleur</label>
+            <select id="gpuColor">
+              <option value="any" selected>Indifférent</option>
+              <option value="black">Noir</option><option value="white">Blanc</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Mobo -->
+        <div class="sub-head">
+          <strong>Carte mère</strong>
+          <button class="cat-btn" data-action="toggle-sub" data-target="mobo" title="déplier">▼</button>
+        </div>
+        <div class="sub-controls row compact hidden" data-sub="mobo">
+          <div class="field">
+            <label for="moboBrand">Marque</label>
+            <select id="moboBrand">
+              <option value="any" selected>Indifférent</option>
+              <option>ASUS</option><option>MSI</option><option>GIGABYTE</option><option>ASRock</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="moboChipset">Chipset</label>
+            <select id="moboChipset">
+              <option value="any" selected>Indifférent</option>
+              <option>X670E</option><option>B650</option><option>Z790</option><option>B760</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="moboForm">Format</label>
+            <select id="moboForm">
+              <option>ATX</option><option>Micro-ATX</option><option>Mini-ITX</option><option>E-ATX</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="moboColor">Couleur</label>
+            <select id="moboColor">
+              <option value="any" selected>Indifférent</option>
+              <option value="black">Noir</option><option value="white">Blanc</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- RAM -->
+        <div class="sub-head">
+          <strong>RAM</strong>
+          <button class="cat-btn" data-action="toggle-sub" data-target="ram" title="déplier">▼</button>
+        </div>
+        <div class="sub-controls row compact hidden" data-sub="ram">
+          <div class="field">
+            <label for="ramBrand">Marque</label>
+            <select id="ramBrand">
+              <option value="any" selected>Indifférent</option>
+              <option>Corsair</option><option>G.Skill</option><option>Kingston</option><option>Crucial</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="ramSize">Quantité</label>
+            <select id="ramSize">
+              <option value="16" selected>16 Go</option>
+              <option value="32">32 Go</option>
+              <option value="48">48 Go</option>
+              <option value="64">64 Go</option>
+              <option value="128">128 Go</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="ramColor">Couleur</label>
+            <select id="ramColor">
+              <option value="any" selected>Indifférent</option>
+              <option value="black">Noir</option><option value="white">Blanc</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Options</label>
+            <div class="checks">
+              <label><input class="chk" type="checkbox" id="ramRGBChk"> RGB</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- SSD -->
+        <div class="sub-head">
+          <strong>Stockage (NVMe)</strong>
+          <button class="cat-btn" data-action="toggle-sub" data-target="ssd" title="déplier">▼</button>
+        </div>
+        <div class="sub-controls row compact hidden" data-sub="ssd">
+          <div class="field">
+            <label for="ssdBrand">Marque</label>
+            <select id="ssdBrand">
+              <option value="any" selected>Indifférent</option>
+              <option>Crucial</option><option>Samsung</option><option>WD</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="ssdSize">Capacité</label>
+            <select id="ssdSize">
+              <option value="1000" selected>1 To</option>
+              <option value="2000">2 To</option>
+              <option value="4000">4 To</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- AIO only -->
+        <div class="sub-head">
+          <strong>Refroidissement (AIO)</strong>
+          <button class="cat-btn" data-action="toggle-sub" data-target="cooler" title="déplier">▼</button>
+        </div>
+        <div class="sub-controls row compact hidden" data-sub="cooler">
+          <div class="field">
+            <label for="aioBrand">Marque</label>
+            <select id="aioBrand">
+              <option value="any" selected>Indifférent</option>
+              <option>Arctic</option><option>Corsair</option><option>NZXT</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="aioSize">Taille</label>
+            <select id="aioSize">
+              <option>120 mm</option><option>140 mm</option><option selected>240 mm</option><option>280 mm</option><option>360 mm</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="aioColor">Couleur</label>
+            <select id="aioColor">
+              <option value="any" selected>Indifférent</option>
+              <option value="black">Noir</option><option value="white">Blanc</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Options</label>
+            <div class="checks">
+              <label><input class="chk" type="checkbox" id="aioLCDChk"> LCD</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Case -->
+        <div class="sub-head">
+          <strong>Boîtier</strong>
+          <button class="cat-btn" data-action="toggle-sub" data-target="case" title="déplier">▼</button>
+        </div>
+        <div class="sub-controls row compact hidden" data-sub="case">
+          <div class="field">
+            <label for="caseBrand">Marque</label>
+            <select id="caseBrand">
+              <option value="any" selected>Indifférent</option>
+              <option>Corsair</option><option>Lian Li</option><option>NZXT</option><option>Be Quiet!</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="caseForm">Format CM supporté</label>
+            <select id="caseForm">
+              <option>ATX</option><option>E-ATX</option><option>Micro-ATX</option><option>Mini-ITX</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="caseColor">Couleur</label>
+            <select id="caseColor">
+              <option value="any" selected>Indifférent</option>
+              <option value="black">Noir</option><option value="white">Blanc</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Options</label>
+            <div class="checks">
+              <label><input class="chk" type="checkbox" id="caseRGBChk"> RGB</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- PSU -->
+        <div class="sub-head">
+          <strong>Alimentation</strong>
+          <button class="cat-btn" data-action="toggle-sub" data-target="psu" title="déplier">▼</button>
+        </div>
+        <div class="sub-controls row compact hidden" data-sub="psu">
+          <div class="field">
+            <label for="psuBrand">Marque</label>
+            <select id="psuBrand">
+              <option value="any" selected>Indifférent</option>
+              <option>Corsair</option><option>be quiet!</option><option>Seasonic</option><option>MSI</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="psuWatt">Puissance</label>
+            <select id="psuWatt">
+              <option>500</option><option>550</option><option selected>650</option><option>750</option><option>850</option><option>1000</option><option>1200</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="psuColor">Couleur</label>
+            <select id="psuColor">
+              <option value="any" selected>Indifférent</option>
+              <option value="black">Noir</option><option value="white">Blanc</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="btnGenerate" data-action="generate" type="button">🚀 Générer la config</button>
+      <button class="btn" id="btnClear" data-action="clear" type="button">🧹 Tout vider</button>
+    </div>
+  </section>
+
+  <!-- PARTIE 2 -->
+  <section class="card hidden" id="sec2">
+    <h2>2) Config</h2>
+    <div id="configTableWrap">
+      <table>
+        <thead><tr><th>Catégorie</th><th>Produit</th><th style="width:120px">Prix</th></tr></thead>
+        <tbody id="configBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PARTIE 3 -->
+  <section class="card hidden" id="sec3">
+    <h2>3) Panier <span class="pill" id="cartCount">0 lien</span></h2>
+    <div class="grandTotal" id="bigTotal">—</div>
+    <div class="row" style="margin-bottom:8px;margin-top:6px">
+      <button id="btnMakeLinks" type="button" class="btn" data-action="make-links">🔗 Générer les liens</button>
+      <button id="btnOpenAll" type="button" class="btn" data-action="open-all">🧭 Ouvrir tous</button>
+      <button id="btnCopy" type="button" class="btn" data-action="copy">📋 Copier</button>
+      <button id="btnEmpty" type="button" class="btn" data-action="empty">🗑️ Vider</button>
+    </div>
+    <div id="cartTableWrap" class="hidden">
+      <table>
+        <thead><tr><th>Catégorie</th><th>Produit</th><th>Lien</th></tr></thead>
+        <tbody id="linksBody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer>v7.1</footer>
+
+<script>
+"use strict";
+(function(){
+const AFF="latechfrencht-21";
+const euro = (n)=> (typeof n==='number' && n>0)? (n.toFixed(0)+'€') : '—';
+const searchUrl = (q)=> "https://www.amazon.fr/s?k="+encodeURIComponent(q)+"&tag="+AFF;
+const directUrl = (asin)=> "https://www.amazon.fr/dp/"+asin+"?tag="+AFF;
+const $ = (id)=> document.getElementById(id);
+const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
+
+const CPU_MODELS = {
+  "amd":[
+    "Ryzen 9 9950X3D","Ryzen 9 9950X","Ryzen 9 9900X3D","Ryzen 9 9900X",
+    "Ryzen 7 9800X3D","Ryzen 7 9700X","Ryzen 5 9600X","Ryzen 5 9600"
+  ],
+  "intel":[
+    "Core i9-14900KS","Core i9-14900K","Core i9-14900KF","Core i9-14900","Core i9-14900F","Core i9-14900T",
+    "Core i7-14700K","Core i7-14700KF","Core i7-14700","Core i7-14700F","Core i7-14700T",
+    "Core i5-14600K","Core i5-14600KF","Core i5-14600","Core i5-14600F","Core i5-14600T","Core i5-14500","Core i5-14500T","Core i5-14400","Core i5-14400F","Core i5-14400T"
+  ],
+  "intel-ultra":[
+    "Ultra 9 285K","Ultra 7 265K","Ultra 7 265KF","Ultra 5 245K","Ultra 5 245KF",
+    "Ultra 9 285","Ultra 9 285T","Ultra 7 265","Ultra 7 265F","Ultra 7 265T","Ultra 5 225","Ultra 5 225F"
+  ]
+};
+
+const ASINS = {
+  // Renseigne ici les ASINs pour activer les liens directs
+};
+
+const DB={
+ cpu:[
+  {id:"i9-14900k",name:"Intel Core i9-14900K",brand:"intel",latest:true,condition:"new",price:589, asin:null},
+  {id:"i7-14700k",name:"Intel Core i7-14700K",brand:"intel",latest:true,condition:"new",price:449, asin:null},
+  {id:"i5-14600k",name:"Intel Core i5-14600K",brand:"intel",latest:true,condition:"new",price:329, asin:null},
+  {id:"u9-285k",name:"Intel Ultra 9 285K",brand:"intel-ultra",latest:true,condition:"new",price:0, asin:null},
+  {id:"u7-265k",name:"Intel Ultra 7 265K",brand:"intel-ultra",latest:true,condition:"new",price:0, asin:null},
+  {id:"r9-9950x",name:"AMD Ryzen 9 9950X",brand:"amd",latest:true,condition:"new",price:0, asin:null},
+  {id:"r7-9700x",name:"AMD Ryzen 7 9700X",brand:"amd",latest:true,condition:"new",price:0, asin:null},
+  {id:"r5-9600x",name:"AMD Ryzen 5 9600X",brand:"amd",latest:true,condition:"new",price:0, asin:null}
+ ],
+ gpu:[
+  {id:"rtx5070",name:"ZOTAC GeForce RTX 5070",brand:"ZOTAC",series:"RTX 5070",color:"black",latest:true,condition:"new",price:0, asin:null},
+  {id:"rtx5080",name:"ASUS GeForce RTX 5080",brand:"ASUS",series:"RTX 5080",color:"black",latest:true,condition:"new",price:0, asin:null},
+  {id:"rtx5090",name:"MSI GeForce RTX 5090",brand:"MSI",series:"RTX 5090",color:"black",latest:true,condition:"new",price:0, asin:null}
+ ],
+ mobo:[
+  {id:"x670e-plus",name:"ASUS TUF GAMING X670E-PLUS WIFI (AM5)",brand:"ASUS",chipset:"X670E",format:"ATX",color:"black",latest:true,condition:"new",price:329, asin:null},
+  {id:"b650-plus",name:"ASUS TUF GAMING B650-PLUS WIFI (AM5)",brand:"ASUS",chipset:"B650",format:"ATX",color:"black",latest:true,condition:"new",price:209, asin:null},
+  {id:"z790-tomahawk",name:"MSI MAG Z790 TOMAHAWK WIFI",brand:"MSI",chipset:"Z790",format:"ATX",color:"black",latest:true,condition:"new",price:329, asin:null},
+  {id:"b760-a",name:"ASUS PRIME B760-A WIFI (White)",brand:"ASUS",chipset:"B760",format:"ATX",color:"white",latest:true,condition:"new",price:209, asin:null},
+  {id:"b650m",name:"MSI B650M (Micro-ATX)",brand:"MSI",chipset:"B650",format:"Micro-ATX",color:"black",latest:true,condition:"new",price:159, asin:null},
+  {id:"z790i",name:"ASUS ROG STRIX Z790-I (Mini-ITX)",brand:"ASUS",chipset:"Z790",format:"Mini-ITX",color:"black",latest:true,condition:"new",price:399, asin:null}
+ ],
+ ram:[
+  {id:"ven-16",name:"Corsair Vengeance DDR5 16 Go 6000 (Noir)",brand:"Corsair",size:16,color:"black",rgb:"yes",latest:true,condition:"new",price:65, asin:null},
+  {id:"ven-32",name:"Corsair Vengeance DDR5 32 Go 6000 (Noir)",brand:"Corsair",size:32,color:"black",rgb:"no",latest:true,condition:"new",price:109, asin:null},
+  {id:"ven-64",name:"Corsair Vengeance DDR5 64 Go 6000 (Noir)",brand:"Corsair",size:64,color:"black",rgb:"no",latest:true,condition:"new",price:199, asin:null}
+ ],
+ ssd:[
+  {id:"nvme-1",name:"SSD NVMe Gen4 1 To",brand:"Crucial",size:1000,latest:true,condition:"new",price:70, asin:null},
+  {id:"nvme-2",name:"SSD NVMe Gen4 2 To",brand:"Samsung",size:2000,latest:true,condition:"new",price:120, asin:null},
+  {id:"nvme-4",name:"SSD NVMe Gen4 4 To",brand:"WD",size:4000,latest:true,condition:"new",price:240, asin:null}
+ ],
+ cooler:[
+  {id:"aio-240",name:"ARCTIC Liquid Freezer II 240 RGB (Noir)",type:"aio",brand:"Arctic",size:240,color:"black",lcd:"no",latest:true,condition:"new",price:89, asin:null},
+  {id:"aio-360",name:"ARCTIC Liquid Freezer II 360 RGB (Noir)",type:"aio",brand:"Arctic",size:360,color:"black",lcd:"no",latest:true,condition:"new",price:119, asin:null}
+ ],
+ case:[
+  {id:"4000d-b",name:"Corsair 4000D Airflow — Noir",brand:"Corsair",supports:["ATX","Micro-ATX","Mini-ITX"],color:"black",rgb:"no",latest:true,condition:"new",price:99, asin:null},
+  {id:"4000d-w",name:"Corsair 4000D Airflow — Blanc",brand:"Corsair",supports:["ATX","Micro-ATX","Mini-ITX"],color:"white",rgb:"no",latest:true,condition:"new",price:109, asin:null},
+  {id:"o11d-xl",name:"Lian Li O11D XL (E-ATX)",brand:"Lian Li",supports:["E-ATX","ATX","Micro-ATX","Mini-ITX"],color:"black",rgb:"yes",latest:true,condition:"new",price:189, asin:null},
+  {id:"h5-flow",name:"NZXT H5 Flow",brand:"NZXT",supports:["ATX","Micro-ATX","Mini-ITX"],color:"black",rgb:"no",latest:true,condition:"new",price:99, asin:null},
+  {id:"pure-base-500",name:"be quiet! Pure Base 500 (Micro-ATX/Mini-ITX)",brand:"Be Quiet!",supports:["Micro-ATX","Mini-ITX"],color:"black",rgb:"no",latest:true,condition:"new",price:89, asin:null}
+ ],
+ psu:[
+  {id:"rm650e",name:"Corsair RM650e 80+ Gold (ATX 3.0)",brand:"Corsair",watt:650,cert:"Gold",color:"black",latest:true,condition:"new",price:99, asin:null},
+  {id:"pp12m-650",name:"be quiet! Pure Power 12 M 650W Gold",brand:"be quiet!",watt:650,cert:"Gold",color:"black",latest:true,condition:"new",price:109, asin:null},
+  {id:"rm850e",name:"Corsair RM850e 80+ Gold (ATX 3.0)",brand:"Corsair",watt:850,cert:"Gold",color:"black",latest:true,condition:"new",price:129, asin:null},
+  {id:"pp12m-850",name:"be quiet! Pure Power 12 M 850W Gold",brand:"be quiet!",watt:850,cert:"Gold",color:"black",latest:true,condition:"new",price:139, asin:null},
+  {id:"gx750w-w",name:"Seasonic Focus GX-750 (White) 80+ Gold",brand:"Seasonic",watt:750,cert:"Gold",color:"white",latest:true,condition:"new",price:129, asin:null},
+  {id:"mpg-a1000g",name:"MSI MPG A1000G (ATX 3.0) 80+ Gold",brand:"MSI",watt:1000,cert:"Gold",color:"black",latest:true,condition:"new",price:169, asin:null}
+ ]
+};
+
+const CHIPSETS = { intel: ['Z790','B760'], 'intel-ultra': ['Z790','B760'], amd: ['X670E','B650'] };
+
+let cfg = { has:false, warns:new Set(), build:{} };
+
+function latestOnly(list){
+  const older = (document.getElementById('olderGen') && document.getElementById('olderGen').checked) || false;
+  return older ? list.filter(x=>x.condition==='new') : list.filter(x=>x.latest && x.condition==='new');
+}
+function getFilters(){
+  const q = (id)=> (document.getElementById(id)? document.getElementById(id).value : '');
+  const c = (id)=> (document.getElementById(id)? document.getElementById(id).checked : false);
+  return {
+    usage: q('usePref')||'any',
+    cpu:{ brand:q('cpuPref'), model:q('cpuModel') },
+    gpu:{ brand:q('gpuBrand'), series:q('gpuSeries'), color:q('gpuColor') },
+    mobo:{ brand:q('moboBrand'), chipset:q('moboChipset'), format:q('moboForm'), color:q('moboColor') },
+    ram:{ brand:q('ramBrand'), size:q('ramSize'), color:q('ramColor'), rgb:c('ramRGBChk') },
+    ssd:{ brand:q('ssdBrand'), size:q('ssdSize') },
+    cooler:{ brand:q('aioBrand'), size:(q('aioSize')||'').replace(/\D/g,''), color:q('aioColor'), lcd:c('aioLCDChk') },
+    case:{ brand:q('caseBrand'), format:q('caseForm'), color:q('caseColor'), rgb:c('caseRGBChk') },
+    psu:{ brand:q('psuBrand'), watt:q('psuWatt'), color:q('psuColor') }
+  };
+}
+
+function directLink(item){
+  const asin = item.asin || ASINS[item.id];
+  if(asin) return directUrl(asin);
+  return searchUrl(item.name);
+}
+
+function pickCPU(){
+  let list=latestOnly(DB.cpu);
+  const f=getFilters().cpu;
+  if(f.brand && f.brand!=='any') list=list.filter(x=>x.brand===f.brand)||list;
+  if(f.model && f.model!=='any'){
+    const exact=list.find(x=>x.name.toLowerCase().includes(f.model.toLowerCase()));
+    if(exact) return exact;
+  }
+  const b=parseInt((document.getElementById('budget')||{value:1500}).value,10)||1500;
+  if(f.brand==='intel' || f.brand==='intel-ultra' || (!f.brand || f.brand==='any' && b>=1600)) return list.find(x=>x.brand.startsWith('intel'))||list[0];
+  if(f.brand==='amd') return list.find(x=>x.brand==='amd')||list[0];
+  return list[0];
+}
+function pickMobo(cpu){
+  let list=latestOnly(DB.mobo);
+  const f=getFilters().mobo;
+  const need = CHIPSETS[cpu.brand] || [];
+  if(need.length) list = list.filter(m=>need.includes(m.chipset));
+  if(f.chipset && f.chipset!=='any') list=list.filter(m=>m.chipset===f.chipset);
+  if(f.format) list=list.filter(m=>m.format===f.format);
+  const desiredCase = getFilters().case.format;
+  if(desiredCase) list=list.filter(m=>m.format===desiredCase);
+  if(f.brand && f.brand!=='any') list=list.filter(m=>m.brand===f.brand);
+  if(f.color && f.color!=='any') list=list.filter(m=>m.color===f.color);
+  return list[0];
+}
+function pickGPU(){
+  let list=latestOnly(DB.gpu);
+  const f=getFilters().gpu;
+  if(f.brand && f.brand!=='any') list=list.filter(x=>x.brand===f.brand)||list;
+  if(f.series){ const exact=list.find(x=>x.series && x.series.toLowerCase()===f.series.toLowerCase()); if(exact) return exact; }
+  if(f.color && f.color!=='any') list=list.filter(x=>x.color===f.color)||list;
+  return list.find(x=>/5070/.test(x.series)) || list.find(x=>/5080/.test(x.series)) || list.find(x=>/5090/.test(x.series)) || list[0];
+}
+function pickRAM(){
+  const f=getFilters().ram;
+  let target=parseInt(f.size||'16',10);
+  let list=latestOnly(DB.ram).sort((a,b)=>Math.abs(a.size-target)-Math.abs(b.size-target));
+  if(f.brand && f.brand!=='any') list=list.filter(r=>r.brand===f.brand)||list;
+  if(f.color && f.color!=='any') list=list.filter(r=>r.color===f.color)||list;
+  if(f.rgb) list=list.filter(r=>r.rgb==='yes')||list;
+  return list[0];
+}
+function pickSSD(){
+  const f=getFilters().ssd;
+  let target=parseInt(f.size||'1000',10);
+  let list=latestOnly(DB.ssd).sort((a,b)=>Math.abs(a.size-target)-Math.abs(b.size-target));
+  if(f.brand && f.brand!=='any') list=list.filter(s=>s.brand===f.brand)||list;
+  return list[0];
+}
+function pickAIO(){
+  const f=getFilters().cooler;
+  let list=latestOnly(DB.cooler).filter(c=>c.type==='aio');
+  const size=parseInt((f.size||'240'),10)||240;
+  list=list.sort((a,b)=>Math.abs(a.size-size)-Math.abs(b.size-size));
+  if(f.color && f.color!=='any') list=list.filter(c=>c.color===f.color)||list;
+  if(f.lcd) list=list.filter(c=>c.lcd==='yes')||list;
+  if(f.brand && f.brand!=='any') list=list.filter(c=>c.brand===f.brand)||list;
+  return list[0];
+}
+function pickCase(mobo){
+  const f=getFilters().case;
+  let list=latestOnly(DB.case);
+  if(f.brand && f.brand!=='any') list=list.filter(c=>c.brand===f.brand)||list;
+  if(f.color && f.color!=='any') list=list.filter(c=>c.color===f.color)||list;
+  if(f.rgb) list=list.filter(c=>c.rgb==='yes')||list;
+  if(mobo && mobo.format){ list=list.filter(c=>c.supports && c.supports.includes(mobo.format)); }
+  if(f.format){ list=list.filter(c=>c.supports && c.supports.includes(f.format)); }
+  return list[0];
+}
+function pickPSU(gpu){
+  const f=getFilters().psu;
+  let list=latestOnly(DB.psu).filter(p=>p.cert==='Gold');
+  if(f.brand && f.brand!=='any') list=list.filter(p=>p.brand===f.brand)||list;
+  let target = 650;
+  const series = (gpu && (gpu.series||gpu.name)) || '';
+  if(/5080|5090/.test(series)) target = 850;
+  if(f.watt) target=parseInt(f.watt,10)||target;
+  list=list.sort((a,b)=>Math.abs(a.watt-target)-Math.abs(b.watt-target));
+  if(f.color && f.color!=='any') list=list.filter(p=>p.color===f.color)||list;
+  return list[0];
+}
+
+function validateCompatibility(){
+  cfg.warns.clear();
+  if(cfg.build.cpu && cfg.build.mobo){
+    const need = CHIPSETS[cfg.build.cpu.brand]||[];
+    if(need.length && !need.includes(cfg.build.mobo.chipset)){
+      cfg.build.mobo = null; cfg.warns.add('mobo');
+    }
+  }
+  if(cfg.build.mobo && cfg.build.case){
+    if(!(cfg.build.case.supports||[]).includes(cfg.build.mobo.format)){
+      cfg.build.case = null; cfg.warns.add('case');
+    }
+  }
+}
+
+function renderConfig(){
+  const sec2=document.getElementById('sec2'), body=document.getElementById('configBody');
+  if(!sec2 || !body) return;
+  if(!cfg.has){ sec2.classList.add('hidden'); return; }
+  sec2.classList.remove('hidden');
+  body.innerHTML='';
+  const rows=[
+    ['CPU','cpu'],
+    ['GPU','gpu'],
+    ['Carte mère','mobo'],
+    ['RAM','ram'],
+    ['Stockage (NVMe)','ssd'],
+    ['Refroidissement (AIO)','cooler'],
+    ['Boîtier','case'],
+    ['Alimentation','psu']
+  ];
+  rows.forEach(([label,key])=>{
+    const it=cfg.build[key];
+    const warn = cfg.warns.has(key) || !it;
+    const tr=document.createElement('tr');
+    tr.setAttribute('data-cat', key);
+    const warnIcon = warn? ' <span class="warn" title="Incompatible / À compléter">▲</span>' : '';
+    tr.innerHTML=
+      '<td><button class="cat-btn" data-action="expand" data-target="'+key+'" title="Options">▼</button> '+label+warnIcon+'</td>'+
+      '<td class="prodCell"><span class="name-link" data-action="edit" data-target="'+key+'">'+(it?it.name:'Choisir…')+'</span></td>'+
+      '<td>'+(it? euro(it.price): '—') +'</td>';
+    body.appendChild(tr);
+  });
+  document.getElementById('sec3') && document.getElementById('sec3').classList.remove('hidden');
+}
+
+function buildExtraControls(cat){
+  const wrap=document.createElement('div'); wrap.className='row compact';
+  const f=getFilters();
+  function field(label, opts, current, onChange){
+    const F=document.createElement('div'); F.className='field';
+    const L=document.createElement('label'); L.textContent=label; F.appendChild(L);
+    const S=document.createElement('select');
+    opts.forEach(v=>{ const o=document.createElement('option'); if(typeof v==='object'){o.value=v.value;o.textContent=v.label;}else{o.value=v;o.textContent=v;} if(current===o.value) o.selected=true; S.appendChild(o); });
+    S.addEventListener('change', onChange);
+    F.appendChild(S); wrap.appendChild(F);
+  }
+  function chk(label, current, onChange){
+    const F=document.createElement('div'); F.className='field';
+    const L=document.createElement('label'); L.textContent='Options'; F.appendChild(L);
+    const box=document.createElement('div'); box.className='checks';
+    const holder=document.createElement('label'); const C=document.createElement('input'); C.type='checkbox'; C.className='chk'; C.checked=current;
+    holder.appendChild(C); holder.appendChild(document.createTextNode(' '+label)); box.appendChild(holder); F.appendChild(box); wrap.appendChild(F);
+    C.addEventListener('change', onChange);
+  }
+  const applyHolder=document.createElement('div'); applyHolder.className='apply-wrap';
+  const applyBtn=document.createElement('button'); applyBtn.className='btn'; applyBtn.textContent='+ Appliquer'; applyBtn.setAttribute('data-action','apply-opts'); applyBtn.setAttribute('data-target', cat);
+  applyHolder.appendChild(applyBtn);
+
+  if(cat==='cpu'){
+    field('Marque',['any','intel','intel-ultra','amd'], f.cpu.brand, ev=>{ document.getElementById('cpuPref').value=ev.target.value; refreshCpuModels(); });
+    field('Modèle',['any'].concat(CPU_MODELS[document.getElementById('cpuPref').value]||[]), f.cpu.model, ev=>{ document.getElementById('cpuModel').value=ev.target.value; });
+  }
+  if(cat==='gpu'){
+    field('Marque',['any','ASUS','MSI','ZOTAC','GIGABYTE','INNO3D','PALIT'], f.gpu.brand, ev=>{ document.getElementById('gpuBrand').value=ev.target.value; });
+    field('Série',['RTX 5070','RTX 5080','RTX 5090'], f.gpu.series, ev=>{ document.getElementById('gpuSeries').value=ev.target.value; });
+    field('Couleur',['any','black','white'], f.gpu.color, ev=>{ document.getElementById('gpuColor').value=ev.target.value; });
+  }
+  if(cat==='mobo'){
+    field('Marque',['any','ASUS','MSI','GIGABYTE','ASRock'], f.mobo.brand, ev=>{ document.getElementById('moboBrand').value=ev.target.value; });
+    field('Chipset',['any','X670E','B650','Z790','B760'], f.mobo.chipset, ev=>{ document.getElementById('moboChipset').value=ev.target.value; });
+    field('Format',['ATX','Micro-ATX','Mini-ITX','E-ATX'], f.mobo.format, ev=>{ document.getElementById('moboForm').value=ev.target.value; });
+    field('Couleur',['any','black','white'], f.mobo.color, ev=>{ document.getElementById('moboColor').value=ev.target.value; });
+  }
+  if(cat==='ram'){
+    field('Marque',['any','Corsair','G.Skill','Kingston','Crucial'], f.ram.brand, ev=>{ document.getElementById('ramBrand').value=ev.target.value; });
+    field('Quantité',['16','32','48','64','128'], f.ram.size, ev=>{ document.getElementById('ramSize').value=ev.target.value; });
+    field('Couleur',['any','black','white'], f.ram.color, ev=>{ document.getElementById('ramColor').value=ev.target.value; });
+    chk('RGB', document.getElementById('ramRGBChk').checked, ev=>{ document.getElementById('ramRGBChk').checked=ev.target.checked; });
+  }
+  if(cat==='ssd'){
+    field('Marque',['any','Crucial','Samsung','WD'], f.ssd.brand, ev=>{ document.getElementById('ssdBrand').value=ev.target.value; });
+    field('Capacité',['1000','2000','4000'], f.ssd.size, ev=>{ document.getElementById('ssdSize').value=ev.target.value; });
+  }
+  if(cat==='cooler'){
+    field('Marque',['any','Arctic','Corsair','NZXT'], f.cooler.brand, ev=>{ document.getElementById('aioBrand').value=ev.target.value; });
+    field('Taille',['120 mm','140 mm','240 mm','280 mm','360 mm'], document.getElementById('aioSize').value, ev=>{ document.getElementById('aioSize').value=ev.target.value; });
+    field('Couleur',['any','black','white'], f.cooler.color, ev=>{ document.getElementById('aioColor').value=ev.target.value; });
+    chk('LCD', document.getElementById('aioLCDChk').checked, ev=>{ document.getElementById('aioLCDChk').checked=ev.target.checked; });
+  }
+  if(cat==='case'){
+    field('Marque',['any','Corsair','Lian Li','NZXT','Be Quiet!'], f.case.brand, ev=>{ document.getElementById('caseBrand').value=ev.target.value; });
+    field('Format CM',['ATX','E-ATX','Micro-ATX','Mini-ITX'], f.case.format, ev=>{ document.getElementById('caseForm').value=ev.target.value; });
+    field('Couleur',['any','black','white'], f.case.color, ev=>{ document.getElementById('caseColor').value=ev.target.value; });
+    chk('RGB', document.getElementById('caseRGBChk').checked, ev=>{ document.getElementById('caseRGBChk').checked=ev.target.checked; });
+  }
+  if(cat==='psu'){
+    field('Marque',['any','Corsair','be quiet!','Seasonic','MSI'], f.psu.brand, ev=>{ document.getElementById('psuBrand').value=ev.target.value; });
+    field('Puissance',['500','550','650','750','850','1000','1200'], f.psu.watt, ev=>{ document.getElementById('psuWatt').value=ev.target.value; });
+    field('Couleur',['any','black','white'], f.psu.color, ev=>{ document.getElementById('psuColor').value=ev.target.value; });
+  }
+  wrap.appendChild(applyHolder);
+  return wrap;
+}
+
+function toggleExtraRow(cat, tr){
+  const id='extra-'+cat;
+  const exist=document.getElementById(id);
+  if(exist){ exist.remove(); return; }
+  const row=document.createElement('tr'); row.id=id;
+  const td=document.createElement('td'); td.colSpan=3;
+  td.appendChild(buildExtraControls(cat));
+  row.appendChild(td);
+  tr.insertAdjacentElement('afterend', row);
+}
+
+function renderCart(){
+  const sec3=document.getElementById('sec3'); if(!sec3) return;
+  if(!cfg.has){ sec3.classList.add('hidden'); return; }
+  sec3.classList.remove('hidden');
+}
+
+function makeLinks(){
+  const body=document.getElementById('linksBody'); const wrap=document.getElementById('cartTableWrap');
+  if(!body || !wrap){return;}
+  body.innerHTML='';
+  const cats=[['CPU','cpu'],['GPU','gpu'],['Carte mère','mobo'],['RAM','ram'],['Stockage (NVMe)','ssd'],['Refroidissement (AIO)','cooler'],['Boîtier','case'],['Alimentation','psu']];
+  let count=0, total=0;
+  cats.forEach(([label,key])=>{
+    const it=cfg.build[key]; if(!it) return;
+    const tr=document.createElement('tr');
+    const link=directLink(it);
+    tr.innerHTML='<td>'+label+'</td><td>'+it.name+'</td><td>'+(link?'<a target="_blank" rel="noopener" href="'+link+'">Ouvrir</a>':'—')+'</td>';
+    body.appendChild(tr);
+    count++; if(it.price) total+=it.price;
+  });
+  document.getElementById('cartCount').textContent = count+' lien'+(count>1?'s':'');
+  document.getElementById('bigTotal').textContent = total? (total.toFixed(0)+'€') : '—';
+  wrap.classList.remove('hidden');
+}
+
+function generate(){
+  const bEl=document.getElementById('budget');
+  if(bEl){ bEl.value = clamp(parseInt(bEl.value||'1500',10)||1500, 800, 8000); }
+  const cpu = pickCPU();
+  const mobo = pickMobo(cpu);
+  const gpu = pickGPU();
+  const ram = pickRAM();
+  const ssd = pickSSD();
+  const aio = pickAIO();
+  const kase = pickCase(mobo);
+  const psu = pickPSU(gpu);
+  cfg.build = {cpu,gpu,mobo,ram,ssd,cooler:aio,case:kase,psu};
+  validateCompatibility();
+  cfg.has = true;
+  renderConfig();
+  renderCart();
+}
+
+function clearAll(){
+  cfg = { has:false, warns:new Set(), build:{} };
+  document.getElementById('sec2').classList.add('hidden');
+  document.getElementById('sec3').classList.add('hidden');
+  const l=document.getElementById('linksBody'); if(l) l.innerHTML='';
+  document.getElementById('cartCount').textContent='0 lien';
+  document.getElementById('bigTotal').textContent='—';
+}
+
+function applyOpts(cat){
+  if(cat==='cpu'){
+    cfg.build.cpu=pickCPU();
+    cfg.build.mobo=pickMobo(cfg.build.cpu);
+    cfg.build.case=pickCase(cfg.build.mobo);
+  }else if(cat==='mobo'){
+    cfg.build.mobo=pickMobo(cfg.build.cpu);
+    cfg.build.case=pickCase(cfg.build.mobo);
+  }else if(cat==='case'){
+    cfg.build.case=pickCase(cfg.build.mobo);
+  }else if(cat==='gpu'){
+    cfg.build.gpu=pickGPU();
+    cfg.build.psu=pickPSU(cfg.build.gpu);
+  }else if(cat==='psu'){
+    cfg.build.psu=pickPSU(cfg.build.gpu);
+  }else if(cat==='ram'){
+    cfg.build.ram=pickRAM();
+  }else if(cat==='ssd'){
+    cfg.build.ssd=pickSSD();
+  }else if(cat==='cooler'){
+    cfg.build.cooler=pickAIO();
+  }
+  validateCompatibility();
+  renderConfig();
+  renderCart();
+  const ex = document.getElementById('extra-'+cat); if(ex) ex.remove();
+}
+
+document.addEventListener('click', (e)=>{
+  const a=e.target.closest('[data-action]'); if(!a) return;
+  const act=a.getAttribute('data-action'), target=a.getAttribute('data-target');
+  e.preventDefault(); e.stopPropagation();
+  if(act==='generate'){ generate(); }
+  if(act==='clear'){ clearAll(); }
+  if(act==='toggle-sub'){ const el=document.querySelector('.sub-controls[data-sub="'+target+'"]'); if(el){ el.classList.toggle('hidden'); } }
+  if(act==='make-links'){ if(!cfg.has) return; makeLinks(); }
+  if(act==='open-all'){ if(!cfg.has) return; ['cpu','gpu','mobo','ram','ssd','cooler','case','psu'].forEach((k,i)=>{ const it=cfg.build[k]; if(it){ const link=directLink(it); if(link) setTimeout(()=> window.open(link,'_blank'), i*120); }}); }
+  if(act==='copy'){ if(!cfg.has) return; const cats=[['CPU','cpu'],['GPU','gpu'],['Carte mère','mobo'],['RAM','ram'],['Stockage (NVMe)','ssd'],['Refroidissement (AIO)','cooler'],['Boîtier','case'],['Alimentation','psu']]; const text=cats.map(([label,key])=>{ const it=cfg.build[key]; return it? (label+' — '+it.name+'\n'+directLink(it)) : null; }).filter(Boolean).join('\n\n'); if(text){ navigator.clipboard.writeText(text).catch(()=> prompt('Copie manuelle (Ctrl+C)', text)); } }
+  if(act==='empty'){ const body=document.getElementById('linksBody'); if(body) body.innerHTML=''; document.getElementById('cartCount').textContent='0 lien'; document.getElementById('bigTotal').textContent='—'; }
+  if(act==='expand'){ const tr=a.closest('tr'); if(tr) toggleExtraRow(target, tr); }
+  if(act==='edit'){ const tr=a.closest('tr'); const td=tr && tr.querySelector('.prodCell'); if(!td) return; const list=optionsFor(target); if(!list.length){ alert('Aucune option compatible trouvée'); return; } const sel=document.createElement('select'); sel.style.minWidth='320px'; list.forEach(item=>{ const opt=document.createElement('option'); opt.value=item.id; opt.textContent=item.name; if(cfg.build[target] && cfg.build[target].id===item.id) opt.selected=true; sel.appendChild(opt); }); td.innerHTML=''; td.appendChild(sel); sel.addEventListener('change', ()=>{ const found=list.find(x=>x.id===sel.value); cfg.build[target]=found||cfg.build[target]; if(target==='cpu' || target==='mobo' || target==='case'){ validateCompatibility(); } renderConfig(); renderCart(); }); sel.focus(); }
+  if(act==='apply-opts'){ applyOpts(target); }
+});
+
+function optionsFor(cat){
+  const f = getFilters();
+  let list = latestOnly(DB[cat]||[]);
+  if(cat==='cpu'){
+    if(f.cpu.brand && f.cpu.brand!=='any') list=list.filter(x=>x.brand===f.cpu.brand);
+    if(f.cpu.model && f.cpu.model!=='any') list=list.filter(x=>x.name.toLowerCase().includes(f.cpu.model.toLowerCase()));
+  }
+  if(cat==='gpu'){
+    if(f.gpu.brand && f.gpu.brand!=='any') list=list.filter(x=>x.brand===f.gpu.brand);
+    if(f.gpu.series) list=list.filter(x=> (x.series||'').toLowerCase()===f.gpu.series.toLowerCase());
+    if(f.gpu.color && f.gpu.color!=='any') list=list.filter(x=>x.color===f.gpu.color);
+  }
+  if(cat==='mobo'){
+    const cpuBrand = (cfg.build.cpu? cfg.build.cpu.brand : (f.cpu.brand||'any'));
+    const need = CHIPSETS[cpuBrand]||[];
+    if(need.length) list=list.filter(m=>need.includes(m.chipset));
+    if(f.mobo.chipset && f.mobo.chipset!=='any') list=list.filter(m=>m.chipset===f.mobo.chipset);
+    const targetFormat = f.mobo.format || (cfg.build.case? cfg.build.case.format : '');
+    if(targetFormat) list=list.filter(m=>m.format===targetFormat);
+    if(f.mobo.brand && f.mobo.brand!=='any') list=list.filter(m=>m.brand===f.mobo.brand);
+    if(f.mobo.color && f.mobo.color!=='any') list=list.filter(m=>m.color===f.mobo.color);
+  }
+  if(cat==='ram'){
+    const size=parseInt(f.ram.size||'16',10);
+    list=list.sort((a,b)=>Math.abs(a.size-size)-Math.abs(b.size-size));
+    if(f.ram.brand && f.ram.brand!=='any') list=list.filter(r=>r.brand===f.ram.brand);
+    if(f.ram.color && f.ram.color!=='any') list=list.filter(r=>r.color===f.ram.color);
+    if(f.ram.rgb) list=list.filter(r=>r.rgb==='yes');
+  }
+  if(cat==='ssd'){
+    const size=parseInt(f.ssd.size||'1000',10);
+    list=list.sort((a,b)=>Math.abs(a.size-size)-Math.abs(b.size-size));
+    if(f.ssd.brand && f.ssd.brand!=='any') list=list.filter(r=>r.brand===f.ssd.brand);
+  }
+  if(cat==='cooler'){
+    const size=parseInt((f.cooler.size||'240'),10)||240;
+    list=list.sort((a,b)=>Math.abs(a.size-size)-Math.abs(b.size-size));
+    if(f.cooler.brand && f.cooler.brand!=='any') list=list.filter(r=>r.brand===f.cooler.brand);
+    if(f.cooler.color && f.cooler.color!=='any') list=list.filter(r=>r.color===f.cooler.color);
+    if(f.cooler.lcd) list=list.filter(r=>r.lcd==='yes');
+  }
+  if(cat==='case'){
+    if(cfg.build.mobo && cfg.build.mobo.format) list=list.filter(c=> (c.supports||[]).includes(cfg.build.mobo.format));
+    if(f.case.brand && f.case.brand!=='any') list=list.filter(c=>c.brand===f.case.brand);
+    if(f.case.format) list=list.filter(c=> (c.supports||[]).includes(f.case.format));
+    if(f.case.color && f.case.color!=='any') list=list.filter(c=>c.color===f.case.color);
+    if(f.case.rgb) list=list.filter(c=>c.rgb==='yes');
+  }
+  if(cat==='psu'){
+    list=list.filter(p=>p.cert==='Gold');
+    const target=parseInt(f.psu.watt|| ((cfg.build.gpu && /5080|5090/.test(cfg.build.gpu.series||''))? '850':'650'),10);
+    list=list.sort((a,b)=>Math.abs(a.watt-target)-Math.abs(b.watt-target));
+    if(f.psu.brand && f.psu.brand!=='any') list=list.filter(p=>p.brand===f.psu.brand);
+    if(f.psu.color && f.psu.color!=='any') list=list.filter(p=>p.color===f.psu.color);
+  }
+  return list;
+}
+
+function refreshCpuModels(){
+  const selBrand=document.getElementById('cpuPref'), selModel=document.getElementById('cpuModel'); if(!selBrand || !selModel) return;
+  const brand=selBrand.value;
+  selModel.innerHTML='<option value="any" selected>Indifférent</option>';
+  (CPU_MODELS[brand]||[]).forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; selModel.appendChild(o); });
+}
+document.addEventListener('change', (e)=>{
+  if(e.target && e.target.id==='cpuPref'){ refreshCpuModels(); }
+});
+
+(function init(){
+  try{
+    refreshCpuModels();
+    clearAll();
+    console.log('[INIT OK] v7.1');
+  }catch(e){
+    console.error('[INIT ERROR]', e);
+  }
+})();
+
+})();</script>
+</body>
+</html>
